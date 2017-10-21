@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js canvas - particles - random</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			a {
+				color:#0078ff;
+			}
+		</style>
+	</head>
+	<body>
+
+		<!-- <script src="../build/three.js"></script>-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>
+		<script src="js/kaleidoscope/Projector.js"></script>
+		<script src="js/kaleidoscope/CanvasRenderer.js"></script>
+		<!-- <script src="js/loaders/DDSLoader.js"></script>		 -->
+		<script src="js/kaleidoscope/stats.min.js"></script>
+
+		<script>
+
+			var container, stats;
+			var camera, scene, renderer, group, particle;
+			var mouseX = 0, mouseY = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+			var spriteMaterial;
+
+			init();
+			animate();
+
+			function init() {
+				var width = window.innerWidth;
+				var height = window.innerHeight;
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 2100 );
+				camera.position.z = 1500;
+
+				cameraOrtho = new THREE.OrthographicCamera( - width / 2, width / 2, height / 2, - height / 2, 1, 10 );
+				cameraOrtho.position.z = 10;
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0x000000 );
+				scene.fog = new THREE.Fog( 0x000000, 1500, 2100 );
+				
+				sceneOrtho = new THREE.Scene();
+
+				var loader = new THREE.TextureLoader();
+				var mapA = loader.load( "assets/t1.png" );
+				var mapB = loader.load( "assets/t2.png" );
+				var mapC = loader.load( "assets/t3.png" );
+				var mapD = loader.load( "assets/t4.png" );
+				var materialA = new THREE.SpriteMaterial( { map: mapA, color: 0xffffff, fog: true } );
+				var materialB = new THREE.SpriteMaterial( { map: mapB, color: 0xffffff, fog: true } );
+				var materialC = new THREE.SpriteMaterial( { map: mapC, color: 0xffffff, fog: true } );
+				var materialD = new THREE.SpriteMaterial( { map: mapD, color: 0xffffff, fog: true } );
+				var matArray = [materialA, materialB, materialC, materialD];
+
+
+
+				var PI2 = Math.PI * 2;
+
+				var program = function ( context ) {
+
+					context.beginPath();
+					// //draw circle
+					// context.arc( 0, 0, 0.5, 0, PI2, true );
+					
+					//draw square
+					context.moveTo(0,0);
+					context.lineTo(0,1);
+					context.lineTo(1,1);
+					context.lineTo(1,0);
+					context.fill();
+
+				};
+
+				group = new THREE.Group();
+				scene.add( group );
+
+				for ( var i = 0; i < 2000; i++ ) {
+
+					// //draw a material on canvas
+					// var material = new THREE.SpriteCanvasMaterial( {
+					// 	color: Math.random() * 0x808008 + 0x808080,
+					// 	program: program
+					// } );
+
+					var particle = new THREE.Sprite( matArray[Math.floor(Math.random()*matArray.length)] );
+					var geometry = new THREE.BoxGeometry(4,4,4);
+					
+					// draw 3d shape
+					// var sMaterial = new THREE.MeshBasicMaterial({color: Math.random() * 0x808008 + 0x808080});
+					// particle = new THREE.Mesh(geometry, sMaterial);
+					
+					particle.position.x = Math.random() * 2000 - 1000;
+					particle.position.y = Math.random() * 2000 - 1000;
+					particle.position.z = Math.random() * 2000 - 1000;
+					particle.scale.x = particle.scale.y = Math.random() * 60 + 10;
+					group.add( particle );
+						
+				}
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+				renderer.autoClear = false; // To allow render overlay on top of sprited sphere
+
+
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function onDocumentMouseMove( event ) {
+
+				mouseX = event.clientX - windowHalfX;
+				mouseY = event.clientY - windowHalfY;
+			}
+
+			function onDocumentTouchStart( event ) {
+
+				if ( event.touches.length === 1 ) {
+
+					event.preventDefault();
+
+					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+
+				}
+
+			}
+
+			function onDocumentTouchMove( event ) {
+
+				if ( event.touches.length === 1 ) {
+
+					event.preventDefault();
+
+					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+
+				}
+
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+				stats.update();
+
+			}
+
+			function render() {
+
+				camera.position.x += ( mouseX - camera.position.x ) * 0.05;
+				camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
+				camera.lookAt( scene.position );
+
+				group.rotation.x += 0.01/2;//0.01
+				group.rotation.y += 0.02/2;//0.02
+				
+				group.children.forEach(function(e) {
+					// e.material.rotation += 0.11;
+				}, this);
+
+
+				renderer.clear();
+				renderer.render( scene, camera );
+				renderer.clearDepth();
+				renderer.render( sceneOrtho, cameraOrtho );
+
+			}
+
+		</script>
+	</body>
+</html>

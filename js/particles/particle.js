@@ -14,6 +14,10 @@ class Particle{
         noStroke();
         fill(this.col);
         ellipse(this.pos.x, this.pos.y, this.r*2);
+        stroke(this.col)
+        line(this.pos.x,this.pos.y,this.pos.x-random(100),this.pos.y)
+        line(this.pos.x,this.pos.y,this.pos.x+random(100),this.pos.y)
+        
         
         if(this.connected.length > 1){
             for(let i = 0; i < this.connected.length; i++){
@@ -86,4 +90,12 @@ class Particle{
             }
         }
     }
+
+    // glitch(){
+    //     var prevPos = this.pos.copy();
+    //     this.pos.add(createVector(100,100));
+    //     setTimeout(function(){
+    //         this.pos = prevPos;
+    //     },10);
+    // }
 }

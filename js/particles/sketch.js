@@ -25,13 +25,16 @@ function draw(){
         e.checkEdge();
         e.update();
         e.display();
+        // if(frameCount%100==0){
+        //     element.glitch();            
+        // }
     }, this);
 }
 
 function mouseDragged(){
     particles.forEach(function(element) {
         let mousePos = createVector(mouseX, mouseY);
-        element.applyForce(mousePos);
+        element.applyForce(mousePos);        
         // console.log(mousePos);
     }, this);
 }
